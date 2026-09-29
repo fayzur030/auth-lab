@@ -1,7 +1,7 @@
 'use client'
 
 import { toastQueue } from '@/components/ui/ToastProvider'
-import { signIn } from '@/lib/auth-client'
+import { signUp } from '@/lib/auth-client'
 import {
   Button,
   Description,
@@ -12,24 +12,24 @@ import {
   TextField,
 } from '@heroui/react'
 import { Check } from 'lucide-react'
-import Link from 'next/link' 
+import Link from 'next/link'
 
-type SignInType = {
+type FormDataType = {
+  name: string
   email: string
   password: string
-  callbackURL: string
 }
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const data = Object.fromEntries(formData.entries()) as SignInType
+    const data = Object.fromEntries(formData.entries()) as FormDataType
 
-    const { error } = await signIn.email({
+    const { error } = await signUp.email({
+      name: data.name,
       email: data.email,
       password: data.password,
-      callbackURL: '/dashboard',
     })
     if (error) {
       toastQueue.add({
@@ -40,8 +40,8 @@ export default function SignInPage() {
       return
     }
     toastQueue.add({
-      title: 'Signed in successfully',
-      description: 'You have signed in successfully.',
+      // title: '',
+      description: 'Account create successfully',
       variant: 'success',
     })
   }
@@ -52,7 +52,21 @@ export default function SignInPage() {
         className='flex w-96 flex-col gap-4 border p-6 rounded-2xl shadow-2xl'
         onSubmit={onSubmit}
       >
-        {/* <h2 className='font-semibold text-xl text-gray-700'>Please Sign up</h2> */}
+        <h2 className='font-semibold text-xl text-gray-700'>Create Account</h2>
+        <TextField
+          isRequired
+          name='name'
+          validate={(value) => {
+            if (value.length < 3) {
+              return 'Name must be at least 3 characters'
+            }
+            return null
+          }}
+        >
+          <Label>Name</Label>
+          <Input placeholder='Your name' />
+          <FieldError />
+        </TextField>
         <TextField
           isRequired
           name='email'
@@ -66,7 +80,7 @@ export default function SignInPage() {
           }}
         >
           <Label>Email</Label>
-          <Input placeholder='Enter your email' />
+          <Input placeholder='john@example.com' />
           <FieldError />
         </TextField>
 
@@ -94,7 +108,7 @@ export default function SignInPage() {
 
           <FieldError />
           <Description>
-            Don&apos;t have an account? <Link href='sign-up'>Sign up</Link>
+            I have already account? <Link href='/'>Sign in</Link>
           </Description>
           <FieldError />
         </TextField>
