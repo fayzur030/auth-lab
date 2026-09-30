@@ -1,13 +1,14 @@
 'use client'
-
+import logo from '@/Assets/CareSync.png'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
-  { name: 'Workouts', href: '/workouts' },
+  { name: 'Features', href: '/features' },
   { name: 'Contact', href: '/contact' },
 ]
 
@@ -15,14 +16,14 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className='sticky top-0 z-50 border-b border-[#1B2A3A] bg-[#07111F]/95 backdrop-blur'>
+    <header className='sticky top-0 z-50 bg-white border-b  backdrop-blur'>
       <nav className='mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
         {/* Logo */}
         <Link
           href='/'
-          className='shrink-0 text-2xl font-bold tracking-tight text-white'
+          className='shrink-0 text-2xl font-bold tracking-tight text-gray-600'
         >
-          Better<span className='text-[#C2F800]'>Auth</span>
+          <Image src={logo} alt='logo' width={160} height={100} />
         </Link>
 
         {/* Desktop Navigation */}
@@ -31,7 +32,7 @@ const Navbar = () => {
             <Link
               key={link.name}
               href={link.href}
-              className='text-sm font-medium text-gray-300 transition hover:text-[#C2F800]'
+              className='text-sm font-medium text-gray-600 transition hover:text-[#C2F800]'
             >
               {link.name}
             </Link>
@@ -42,16 +43,18 @@ const Navbar = () => {
         <div className='hidden items-center gap-3 md:flex'>
           <Link
             href='/sign-in'
-            className='rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:bg-white/5'
+            className='rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-white/5 border'
           >
             Sign In
           </Link>
 
           <Link
             href='/sign-up'
-            className='rounded-lg bg-[#C2F800] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#aee000]'
+            // className='rounded-lg bg-[#C2F800] px-4 py-2 text-sm font-semibold text-gray-800 transition hover:bg-[#aee000]'
           >
-            Sign Up
+            <button className='rounded-lg bg-blue-600 px-6 py-2.5 cursor-pointer text-sm font-semibold text-white hover:bg-blue-700 transition'>
+              Get Started
+            </button>
           </Link>
         </div>
 
