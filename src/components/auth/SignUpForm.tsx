@@ -1,7 +1,7 @@
 'use client'
 import logo from '@/Assets/CareSync.png'
 import { toastQueue } from '@/components/ui/ToastProvider'
-import { signUp } from '@/lib/auth-client'
+import { signIn, signUp } from '@/lib/auth-client'
 import {
   Button,
   FieldError,
@@ -43,6 +43,24 @@ export default function SignUpForm() {
       // title: '',
       description: 'Account create successfully',
       variant: 'success',
+    })
+  }
+  const handleGoogleSignUp = async () => {
+    console.log('button trigger')
+    const { data: resData, error } = await signIn.social({
+      provider: 'google',
+      callbackURL: '/dashboard',
+    })
+    console.log(resData, 'After sign up with google', error)
+    if (error) {
+      toastQueue.add({
+        description: error.message,
+        variant: 'danger',
+      })
+      return
+    }
+    toastQueue.add({
+      description: 'Google authentication successful.',
     })
   }
 
@@ -114,6 +132,7 @@ export default function SignUpForm() {
         >
           <Label>Password</Label>
           <Input placeholder='Enter your password' />
+          <FieldError />
         </TextField>
 
         <div className='flex gap-2 w-full'>
@@ -132,7 +151,7 @@ export default function SignUpForm() {
 
         {/* Google */}
         <Button
-          //   onClick={handleGoogleSignIn}
+          onClick={handleGoogleSignUp}
           type='button'
           variant='secondary'
           className='flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50'

@@ -13,7 +13,7 @@ import {
   KeyRound,
   X,
 } from 'lucide-react'
-import { signOut } from '@/lib/auth-client'
+import { signOut, useSession } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
 import { toastQueue } from './ui/ToastProvider'
 
@@ -48,6 +48,7 @@ const menuItems = [
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { data } = useSession()
   const router = useRouter()
   const handleLogOut = async () => {
     const { error } = await signOut({
@@ -66,7 +67,6 @@ export function Sidebar() {
       return
     }
     toastQueue.add({
-      // title: 'Signed in successfully',
       description: 'Log out successfully.',
       variant: 'success',
     })
@@ -182,11 +182,11 @@ export function Sidebar() {
             {!collapsed && (
               <div className='min-w-0'>
                 <p className='truncate text-sm font-medium text-gray-900'>
-                  Fayzur Rahman
+                  {data?.user?.name}
                 </p>
 
                 <p className='truncate text-xs text-gray-500'>
-                  fayzur@example.com
+                  {data?.user.email}
                 </p>
               </div>
             )}
