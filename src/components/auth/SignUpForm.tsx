@@ -1,7 +1,7 @@
 'use client'
 import logo from '@/Assets/CareSync.png'
 import { toastQueue } from '@/components/ui/ToastProvider'
-import { signIn, signUp } from '@/lib/auth-client'
+import { authClient, signIn, signUp } from '@/lib/auth-client'
 import {
   Button,
   FieldError,
@@ -13,6 +13,7 @@ import {
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type FormDataType = {
   name: string
@@ -21,11 +22,14 @@ type FormDataType = {
 }
 
 export default function SignUpForm() {
+  const router = useRouter()
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData.entries()) as FormDataType
 
+    // user signup
     const { error } = await signUp.email({
       name: data.name,
       email: data.email,
@@ -33,17 +37,32 @@ export default function SignUpForm() {
     })
     if (error) {
       toastQueue.add({
-        // title: 'Sign in failed',
         description: error.message,
         variant: 'danger',
       })
       return
     }
+
+    // Send OTP email
+    const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+      email: data.email,
+      type: 'email-verification',
+    })
+    console.log(otpError)
+    if (otpError) {
+      toastQueue.add({
+        description: otpError.message,
+        variant: 'danger',
+      })
+      return
+    }
+
     toastQueue.add({
-      // title: '',
-      description: 'Account create successfully',
+      description: 'Verification code sent to your email.',
       variant: 'success',
     })
+
+    router.push(`/verify-account?email=${encodeURIComponent(data.email)}`)
   }
   const handleGoogleSignUp = async () => {
     console.log('button trigger')

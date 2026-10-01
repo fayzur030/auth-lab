@@ -1,7 +1,6 @@
 'use client'
-
+import logo from '@/Assets/CareSync.png'
 import Link from 'next/link'
-import { useState } from 'react'
 import {
   LayoutDashboard,
   Users,
@@ -16,6 +15,8 @@ import {
 import { signOut, useSession } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
 import { toastQueue } from './ui/ToastProvider'
+import { useState } from 'react'
+import Image from 'next/image'
 
 const menuItems = [
   {
@@ -45,11 +46,17 @@ const menuItems = [
   },
 ]
 
-export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+type SidebarProps = {
+  collapsed: boolean
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
+
   const { data } = useSession()
   const router = useRouter()
+
   const handleLogOut = async () => {
     const { error } = await signOut({
       fetchOptions: {
@@ -58,14 +65,16 @@ export function Sidebar() {
         },
       },
     })
+
     if (error) {
       toastQueue.add({
-        // title: 'Sign in failed',
         description: error.message,
         variant: 'danger',
       })
+
       return
     }
+
     toastQueue.add({
       description: 'Log out successfully.',
       variant: 'success',
@@ -90,6 +99,7 @@ export function Sidebar() {
         <PanelLeftOpen size={20} />
       </button>
 
+      {/* Sidebar */}
       <aside
         className={`
           fixed left-0 top-0 z-50 flex h-screen flex-col
@@ -102,13 +112,14 @@ export function Sidebar() {
       >
         {/* Header */}
         <div
-          className={`flex h-16 items-center border-b border-gray-200 ${
-            collapsed ? 'justify-center' : 'justify-between px-5'
-          }`}
+          className={`
+            flex h-16 items-center border-b border-gray-200
+            ${collapsed ? 'justify-center' : 'justify-between px-5'}
+          `}
         >
           {!collapsed && (
             <Link href='/' className='text-xl font-bold tracking-tight'>
-              AuthLab
+              <Image src={logo} alt='logo' width={140} height={100} />
             </Link>
           )}
 
@@ -170,13 +181,14 @@ export function Sidebar() {
 
         {/* User Profile */}
         <div className='border-t border-gray-200 p-3'>
-          <div
-            className={`mb-2 flex items-center ${
-              collapsed ? 'justify-center' : 'gap-3 px-2'
-            }`}
+          {/* <div
+            className={`
+              mb-2 flex items-center
+              ${collapsed ? 'justify-center' : 'gap-3 px-2'}
+            `}
           >
             <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white'>
-              F
+              {data?.user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
 
             {!collapsed && (
@@ -186,11 +198,11 @@ export function Sidebar() {
                 </p>
 
                 <p className='truncate text-xs text-gray-500'>
-                  {data?.user.email}
+                  {data?.user?.email}
                 </p>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Logout */}
           <button
