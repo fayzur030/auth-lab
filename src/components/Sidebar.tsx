@@ -1,6 +1,8 @@
 'use client'
+
 import logo from '@/Assets/CareSync.png'
-import Link from 'next/link'
+import { signOut } from '@/lib/auth-client'
+import { toastQueue } from './ui/ToastProvider'
 import {
   LayoutDashboard,
   Users,
@@ -12,11 +14,10 @@ import {
   KeyRound,
   X,
 } from 'lucide-react'
-import { signOut, useSession } from '@/lib/auth-client'
-import { useRouter } from 'next/navigation'
-import { toastQueue } from './ui/ToastProvider'
-import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 const menuItems = [
   {
@@ -52,11 +53,12 @@ type SidebarProps = {
 }
 
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false)
-
-  const { data } = useSession()
   const router = useRouter()
 
+  // Mobile sidebar state
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Logout
   const handleLogOut = async () => {
     const { error } = await signOut({
       fetchOptions: {
@@ -71,7 +73,6 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         description: error.message,
         variant: 'danger',
       })
-
       return
     }
 
@@ -83,71 +84,143 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* =================================
+          MOBILE OPEN BUTTON
+      ================================= */}
+      {!mobileOpen && (
+        <button
+          type='button'
+          onClick={() => setMobileOpen(true)}
+          aria-label='Open sidebar'
+          className='fixed left-4 top-4 z-40 rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-100 lg:hidden'
+        >
+          <PanelLeftOpen size={20} />
+        </button>
+      )}
+
+      {/* =================================
+          MOBILE OVERLAY
+      ================================= */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className='fixed inset-0 z-40 bg-black/40 lg:hidden'
+          className='
+            fixed inset-0 z-40
+            bg-black/40
+            lg:hidden
+          '
         />
       )}
 
-      {/* Mobile Toggle */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className='fixed left-4 top-4 z-30 rounded-lg border bg-white p-2 shadow-sm lg:hidden'
-      >
-        <PanelLeftOpen size={20} />
-      </button>
-
-      {/* Sidebar */}
+      {/* =================================
+          SIDEBAR
+      ================================= */}
       <aside
         className={`
-          fixed left-0 top-0 z-50 flex h-screen flex-col
-          border-r border-gray-200 bg-white
+          fixed left-0 top-0 z-50
+          flex h-screen flex-col
+          border-r border-gray-200
+          bg-white
           transition-all duration-300
+
           ${collapsed ? 'w-20' : 'w-64'}
-          ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
+
+          ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Header */}
+        {/* =================================
+            HEADER
+        ================================= */}
         <div
           className={`
-            flex h-16 items-center border-b border-gray-200
-            ${collapsed ? 'justify-center' : 'justify-between px-5'}
+            flex h-16 shrink-0 items-center
+            border-b border-gray-200
+
+            ${collapsed ? 'justify-center px-2' : 'justify-between px-5'}
           `}
         >
+          {/* Logo */}
           {!collapsed && (
-            <Link href='/' className='text-xl font-bold tracking-tight'>
-              <Image src={logo} alt='logo' width={140} height={100} />
+            <Link
+              href='/'
+              onClick={() => setMobileOpen(false)}
+              className='shrink-0'
+            >
+              <Image
+                src={logo}
+                alt='CareSync logo'
+                width={140}
+                height={100}
+                className='h-auto w-32'
+              />
             </Link>
           )}
 
-          {/* Desktop Collapse */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className='hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 lg:block'
-          >
-            {collapsed ? (
-              <PanelLeftOpen size={20} />
-            ) : (
-              <PanelLeftClose size={20} />
-            )}
-          </button>
+          {/* Header Buttons */}
+          <div className='flex items-center gap-1'>
+            {/* Collapse / Expand
+                Mobile + Desktop
+            */}
+            <button
+              type='button'
+              onClick={() => setCollapsed((prev) => !prev)}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className='
+                rounded-lg
+                p-2
+                text-gray-500
+                transition
+                hover:bg-gray-100
+                hover:text-gray-900
+              '
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={20} />
+              ) : (
+                <PanelLeftClose size={20} />
+              )}
+            </button>
 
-          {/* Mobile Close */}
-          <button
-            onClick={() => setMobileOpen(false)}
-            className='rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden'
-          >
-            <X size={20} />
-          </button>
+            {/* Close
+                Mobile only
+            */}
+            <button
+              type='button'
+              onClick={() => setMobileOpen(false)}
+              aria-label='Close sidebar'
+              title='Close sidebar'
+              className='
+                rounded-lg
+                p-2
+                text-gray-500
+                transition
+                hover:bg-gray-100
+                hover:text-gray-900
+                lg:hidden
+              '
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        {/* Navigation */}
+        {/* =================================
+            NAVIGATION
+        ================================= */}
         <nav className='flex-1 overflow-y-auto p-3'>
           {!collapsed && (
-            <p className='mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400'>
+            <p
+              className='
+              mb-3
+              px-3
+              text-xs
+              font-semibold
+              uppercase
+              tracking-wider
+              text-gray-400
+            '
+            >
               Overview
             </p>
           )}
@@ -163,10 +236,18 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                   onClick={() => setMobileOpen(false)}
                   title={collapsed ? item.label : undefined}
                   className={`
-                    group flex items-center rounded-lg
-                    py-2.5 text-sm font-medium
-                    text-gray-600 transition-colors
-                    hover:bg-gray-100 hover:text-gray-900
+                    group
+                    flex
+                    items-center
+                    rounded-lg
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-gray-600
+                    transition-colors
+                    hover:bg-gray-100
+                    hover:text-gray-900
+
                     ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'}
                   `}
                 >
@@ -179,40 +260,34 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
           </div>
         </nav>
 
-        {/* User Profile */}
-        <div className='border-t border-gray-200 p-3'>
-          {/* <div
-            className={`
-              mb-2 flex items-center
-              ${collapsed ? 'justify-center' : 'gap-3 px-2'}
-            `}
-          >
-            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white'>
-              {data?.user?.name?.charAt(0).toUpperCase() || 'U'}
-            </div>
-
-            {!collapsed && (
-              <div className='min-w-0'>
-                <p className='truncate text-sm font-medium text-gray-900'>
-                  {data?.user?.name}
-                </p>
-
-                <p className='truncate text-xs text-gray-500'>
-                  {data?.user?.email}
-                </p>
-              </div>
-            )}
-          </div> */}
-
-          {/* Logout */}
+        {/* =================================
+            LOGOUT
+        ================================= */}
+        <div
+          className='
+          shrink-0
+          border-t
+          border-gray-200
+          p-3
+        '
+        >
           <button
-            title={collapsed ? 'Logout' : undefined}
+            type='button'
             onClick={handleLogOut}
+            title={collapsed ? 'Logout' : undefined}
             className={`
-              flex w-full items-center rounded-lg
-              py-2.5 text-sm font-medium
-              text-gray-600 transition-colors
-              hover:bg-red-50 hover:text-red-600
+              flex
+              w-full
+              items-center
+              rounded-lg
+              py-2.5
+              text-sm
+              font-medium
+              text-gray-600
+              transition-colors
+              hover:bg-red-50
+              hover:text-red-600
+
               ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'}
             `}
           >
